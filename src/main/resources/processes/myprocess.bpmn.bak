@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://www.activiti.org/test" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" expressionLanguage="http://www.w3.org/1999/XPath" id="m1545719921538" name="" targetNamespace="http://www.activiti.org/test" typeLanguage="http://www.w3.org/2001/XMLSchema">
+  <process id="myprocess" isClosed="false" isExecutable="true" name="请假流程" processType="None">
+    <startEvent activiti:initiator="${applyUserId}" id="leaveStart" name="StartEvent">
+      <extensionElements>
+        <activiti:formProperty datePattern="yyyy-MM-dd" id="startDate" name="请假日期" readable="true" required="true" type="date" writable="true"/>
+        <activiti:formProperty datePattern="yyyy-MM-dd" id="endDate" name="结束日期" readable="true" required="true" type="date" writable="true"/>
+        <activiti:formProperty id="reason" name="请假原因" readable="true" required="true" type="string" writable="true"/>
+        <activiti:formProperty/>
+      </extensionElements>
+    </startEvent>
+    <endEvent id="leaveEnd" name="EndEvent"/>
+    <userTask activiti:exclusive="true" id="leaderAudit" name="部门领导审批">
+      <extensionElements>
+        <activiti:taskListener event="create"/>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway gatewayDirection="Unspecified" id="leaderRes" name="部门审核结果"/>
+    <userTask activiti:exclusive="true" id="hrAudit" name="HR审批"/>
+    <exclusiveGateway gatewayDirection="Unspecified" id="hrRes" name="HR审核结果"/>
+    <userTask activiti:exclusive="true" id="oneselfAudit" name="销假"/>
+    <userTask activiti:async="false" activiti:exclusive="true" id="leaveEdit" name="调整申请"/>
+    <exclusiveGateway gatewayDirection="Unspecified" id="leaveIsLost" name="是否重新申请"/>
+    <sequenceFlow id="_3" sourceRef="leaveStart" targetRef="leaderAudit"/>
+    <sequenceFlow id="_4" sourceRef="leaderAudit" targetRef="leaderRes"/>
+    <sequenceFlow id="_7" name="通过" sourceRef="hrRes" targetRef="oneselfAudit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${hrAudit == true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_8" sourceRef="oneselfAudit" targetRef="leaveEnd"/>
+    <sequenceFlow id="_9" name="驳回" sourceRef="hrRes" targetRef="leaveEdit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${hrAudit == false}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_10" name="驳回" sourceRef="leaderRes" targetRef="leaveEdit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${leaderAudit == false}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_2" sourceRef="leaveEdit" targetRef="leaveIsLost"/>
+    <sequenceFlow id="_12" name="撤消" sourceRef="leaveIsLost" targetRef="leaveEnd">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${isEdit == false}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_13" name="重新修改" sourceRef="leaveIsLost" targetRef="leaderAudit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${isEdit == true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_5" name="通过" sourceRef="leaderRes" targetRef="hrAudit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${leaderAudit == true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_6" sourceRef="hrAudit" targetRef="hrRes"/>
+    <textAnnotation id="_11" textFormat="text/plain">
+      <text>申请被驳回后，员
+工可以选择继续申
+请或者取消本次申请</text>
+    </textAnnotation>
+  </process>
+  <bpmndi:BPMNDiagram documentation="background=#3C3F41;count=1;horizontalcount=1;orientation=0;width=842.4;height=1195.2;imageableWidth=832.4;imageableHeight=1185.2;imageableX=5.0;imageableY=5.0" id="Diagram-_1" name="New Diagram">
+    <bpmndi:BPMNPlane bpmnElement="myprocess">
+      <bpmndi:BPMNShape bpmnElement="leaveStart" id="Shape-leaveStart">
+        <omgdc:Bounds height="32.0" width="32.0" x="40.0" y="360.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="32.0" width="32.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="leaveEnd" id="Shape-leaveEnd">
+        <omgdc:Bounds height="32.0" width="32.0" x="750.0" y="580.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="32.0" width="32.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="leaderAudit" id="Shape-leaderAudit">
+        <omgdc:Bounds height="55.0" width="85.0" x="160.0" y="350.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="85.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="leaderRes" id="Shape-leaderRes" isMarkerVisible="false">
+        <omgdc:Bounds height="32.0" width="32.0" x="320.0" y="360.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="32.0" width="32.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="hrAudit" id="Shape-hrAudit">
+        <omgdc:Bounds height="55.0" width="85.0" x="425.0" y="345.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="85.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="hrRes" id="Shape-hrRes" isMarkerVisible="false">
+        <omgdc:Bounds height="32.0" width="32.0" x="610.0" y="355.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="32.0" width="32.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="oneselfAudit" id="Shape-oneselfAudit">
+        <omgdc:Bounds height="55.0" width="85.0" x="725.0" y="345.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="85.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="leaveEdit" id="Shape-leaveEdit">
+        <omgdc:Bounds height="55.0" width="85.0" x="295.0" y="465.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="85.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="leaveIsLost" id="Shape-leaveIsLost" isMarkerVisible="false">
+        <omgdc:Bounds height="32.0" width="32.0" x="320.0" y="580.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="32.0" width="32.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_11" id="Shape-_11">
+        <omgdc:Bounds height="55.0" width="85.0" x="430.0" y="520.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="55.0" width="85.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="_13" id="BPMNEdge__13" sourceElement="leaveIsLost" targetElement="leaderAudit">
+        <omgdi:waypoint x="320.0" y="596.0"/>
+        <omgdi:waypoint x="200.0" y="520.0"/>
+        <omgdi:waypoint x="200.0" y="405.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_12" id="BPMNEdge__12" sourceElement="leaveIsLost" targetElement="leaveEnd">
+        <omgdi:waypoint x="352.0" y="596.0"/>
+        <omgdi:waypoint x="750.0" y="596.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_2" id="BPMNEdge__2" sourceElement="leaveEdit" targetElement="leaveIsLost">
+        <omgdi:waypoint x="336.0" y="520.0"/>
+        <omgdi:waypoint x="336.0" y="580.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_3" id="BPMNEdge__3" sourceElement="leaveStart" targetElement="leaderAudit">
+        <omgdi:waypoint x="72.0" y="376.0"/>
+        <omgdi:waypoint x="160.0" y="377.5"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_4" id="BPMNEdge__4" sourceElement="leaderAudit" targetElement="leaderRes">
+        <omgdi:waypoint x="245.0" y="377.5"/>
+        <omgdi:waypoint x="320.0" y="376.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_5" id="BPMNEdge__5" sourceElement="leaderRes" targetElement="hrAudit">
+        <omgdi:waypoint x="352.0" y="376.0"/>
+        <omgdi:waypoint x="425.0" y="372.5"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_6" id="BPMNEdge__6" sourceElement="hrAudit" targetElement="hrRes">
+        <omgdi:waypoint x="510.0" y="372.5"/>
+        <omgdi:waypoint x="610.0" y="371.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_7" id="BPMNEdge__7" sourceElement="hrRes" targetElement="oneselfAudit">
+        <omgdi:waypoint x="642.0" y="371.0"/>
+        <omgdi:waypoint x="725.0" y="372.5"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_8" id="BPMNEdge__8" sourceElement="oneselfAudit" targetElement="leaveEnd">
+        <omgdi:waypoint x="766.0" y="400.0"/>
+        <omgdi:waypoint x="766.0" y="580.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_9" id="BPMNEdge__9" sourceElement="hrRes" targetElement="leaveEdit">
+        <omgdi:waypoint x="620.0" y="381.0"/>
+        <omgdi:waypoint x="620.0" y="495.0"/>
+        <omgdi:waypoint x="380.0" y="495.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_10" id="BPMNEdge__10" sourceElement="leaderRes" targetElement="leaveEdit">
+        <omgdi:waypoint x="336.0" y="392.0"/>
+        <omgdi:waypoint x="336.0" y="465.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="0.0" y="0.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
